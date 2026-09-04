@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: blackwell-5090-benchmark
+  labels:
+    app.kubernetes.io/name: blackwell-5090-benchmark
+    roycorp.net/purpose: benchmark
+spec:
+  restartPolicy: Never
+  containers:
+    - name: sglang-blackwell
+      image: lmsysorg/sglang:latest
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/bash", "-c", "sleep infinity"]
+      resources:
+        limits:
+          nvidia.com/gpu: "1"
+          cpu: "16"
+          memory: 48Gi
+        requests:
+          nvidia.com/gpu: "1"
+          cpu: "8"
+          memory: 24Gi
+      volumeMounts:
+        - name: dshm
+          mountPath: /dev/shm
+        - name: model-cache
+          mountPath: /cache
+  volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+        sizeLimit: 16Gi
+    - name: model-cache
+      hostPath:
+        path: /tmp/model-cache
+        type: DirectoryOrCreate
